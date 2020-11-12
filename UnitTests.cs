@@ -63,24 +63,39 @@ namespace csharp9records
         }
 
         [Test]
+        public void ImmutableRecordsAndWith()
+        {
+            var immutableRecord = new ImmutableRecordType { IntProperty = 42, StringProperty = "foo" };
+            //Sometimes you want a copy of an immutable object, but with
+            //one or more properties changed. You can use a with
+            //expression to do that.
+            var newImmutableRecord = immutableRecord with { IntProperty = 43 };
+
+            Assert.That(newImmutableRecord.IntProperty, Is.EqualTo(43));
+            Assert.That(newImmutableRecord.StringProperty, Is.EqualTo("foo"));
+        }
+
+        [Test]
         public void AlternateRecordDeclarationSyntax()
         {
             var autoPropertySyntaxRecord = new MyRecordType { IntProperty = 42 };
-            //All properties declared in the constructor are required.
-            var constructorSyntaxRecord = new ConstructorSyntaxRecordType(42, "foo");
+            //All properties declared in the constructor are required,
+            //unless they have default values specified.
+            var constructorSyntaxRecord = new ConstructorSyntaxRecordType(42);
 
             //Properties declared with the constructor syntax are readonly,
             //so the following line results in a compiler error.
             //constructorSyntaxRecord.IntProperty = 43;
 
             Assert.That(constructorSyntaxRecord.IntProperty, Is.EqualTo(42));
+            Assert.That(constructorSyntaxRecord.StringProperty, Is.EqualTo("foo"));
         }
 
         [Test]
         public void InitPropertiesOnClasses()
         {
             var immutableNonRecord = new ImmutableNonRecordType { IntProperty = 42 };
-            
+
             //Init properties can only be set in an object initializer.
             // immutableNonRecord.IntProperty = 43;
 
@@ -102,7 +117,7 @@ namespace csharp9records
         public string StringProperty { get; init; }
     }
 
-    public record ConstructorSyntaxRecordType(int IntProperty, string StringProperty);
+    public record ConstructorSyntaxRecordType(int IntProperty, string StringProperty = "foo");
 
     public class ImmutableNonRecordType
     {
